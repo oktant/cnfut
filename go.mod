@@ -5,6 +5,7 @@ go 1.19
 require (
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/labstack/echo/v4 v4.9.1
+	github.com/oktayalizada/cnfut v0.0.0-20221030221457-40220c6d49d5
 )
 
 require (
