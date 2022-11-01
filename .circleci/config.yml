@@ -4,7 +4,7 @@ executors:
     environment:
       IMAGE_NAME: necais/cnfut
     docker:
-      - image: circleci/buildpack-deps:stretch
+      - image: cimg/base:2022.09
 jobs:
   build:
     executor: docker-publisher
