@@ -75,4 +75,3 @@ func copy(srcDest *entities.SourceDestination) {
 		}
 	}
 }
-
