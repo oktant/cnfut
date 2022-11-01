@@ -4,9 +4,9 @@ orbs:
 executors:
   docker-publisher:
     environment:
-      IMAGE_NAME: necais/cnfut
+      IMAGE_NAME: necais/cnfut:1.19.2
     docker:
-      - image: cimg/base:2022.09
+      - image: cimg/go
 jobs:
   build:
     executor: docker-publisher
