@@ -14,6 +14,10 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
+          name: Run tests and coverage
+          command: go test -race -coverprofile=coverage.out -covermode=atomic
+      - codecov/upload
+      - run:
           name: Build Docker image
           command: |
             docker build -t $IMAGE_NAME:latest .
@@ -52,8 +56,3 @@ workflows:
           filters:
             branches:
               only: main
-
-  upload-to-codecov:
-    jobs:
-      - checkout
-      - codecov/upload
