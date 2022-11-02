@@ -2,7 +2,6 @@
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/necais/cnfut/tree/main.svg?style=shield)](https://dl.circleci.com/status-badge/redirect/gh/necais/cnfut/tree/main)
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=cnfut&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=cnfut)
  [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=cnfut&metric=alert_status)](https://sonarcloud.io/dashboard?id=cnfut) 
  [![SonarCloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=cnfut&metric=coverage)](https://sonarcloud.io/component_measures/metric/coverage/list?id=cnfut)
  [![SonarCloud Bugs](https://sonarcloud.io/api/project_badges/measure?project=cnfut&metric=bugs)](https://sonarcloud.io/component_measures/metric/reliability_rating/list?id=cnfut)
