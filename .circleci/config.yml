@@ -1,7 +1,6 @@
 version: 2.1
 orbs:
   codecov: codecov/codecov@3.2.4
-  sonarcloud: sonarsource/sonarcloud@1.1.1
 executors:
   docker-publisher:
     environment:
@@ -16,7 +15,7 @@ jobs:
       - setup_remote_docker
       - run:
           name: Run tests and coverage
-          command: go test -race -coverprofile=coverage.out -covermode=atomic
+          command: sgo test -race -coverprofile=coverage.out -covermode=atomic
       - codecov/upload
       - run:
           name: Build Docker image
