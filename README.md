@@ -1,9 +1,11 @@
 # cnfut
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/necais/cnfut/tree/main.svg?style=plastic)](https://dl.circleci.com/status-badge/redirect/gh/necais/cnfut/tree/main)
+
+![CircleCI](https://img.shields.io/circleci/build/github/necais/cnfut/main?style=plastic)
 [![codecov](https://img.shields.io/codecov/c/github/necais/cnfut?style=plastic&token=GAZ72S3I2J)](https://codecov.io/gh/necais/cnfut)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=cnfut&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=cnfut)
-
+![CircleCI](https://img.shields.io/circleci/build/github/necais/cnfut/main?style=plastic)
 
 
 
