@@ -21,7 +21,10 @@ func IsSourceAndDestinationFolders(src, dest string) (int, error) {
 	}
 	destIsDir, err := IsDirectory(dest)
 	if err != nil {
-		return 0, err
+		_, err := os.Create(dest)
+		if err != nil {
+			return 0, err
+		}
 	}
 	if srcIsDir {
 		if destIsDir {

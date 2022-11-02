@@ -1,11 +1,13 @@
 package service
 
 import (
+	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/labstack/echo/v4"
 	"github.com/necais/cnfut/utils"
 	"io"
 	"net/http"
+	"path/filepath"
 	"strconv"
 
 	//"github.com/aws/aws-sdk-go/aws/credentials"
@@ -32,11 +34,14 @@ func FromLocalToLocal(srcDest *entities.SourceDestination) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 	if folderOrFile == 1 {
-		copySrcFolderToDestFolder(srcDest.Source, srcDest.Destination)
+		//copySrcFolderToDestFolder(srcDest.Source, srcDest.Destination)
 	} else if folderOrFile == 2 {
 		return echo.NewHTTPError(http.StatusBadRequest, "Destination is a file while source is a folder")
 	} else if folderOrFile == 3 {
-		copySrcFileToDestFolder(srcDest.Source, srcDest.Destination)
+		err := copySrcFileToDestFolder(srcDest.Source, srcDest.Destination)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err)
+		}
 	} else {
 		err := copySrcFileToDestFile(srcDest.Source, srcDest.Destination)
 		if err != nil {
@@ -46,12 +51,34 @@ func FromLocalToLocal(srcDest *entities.SourceDestination) error {
 	return nil
 }
 
-func copySrcFolderToDestFolder(src, dest string) {
+func copySrcFileToDestFolder(src, dest string) error {
+	sourceFile, err := os.Open(src)
+	if err != nil {
+		zlog.Error().Err(err)
 
-}
+		return err
+	}
+	defer sourceFile.Clo	se()
 
-func copySrcFileToDestFolder(src, dest string) {
+	_, file := filepath.Split(src)
+	if dest[len(dest)-1:] != string(os.PathSeparator) {
+		dest = dest + string(os.PathSeparator)
+	}
 
+	newFile, err := os.Create(dest + file)
+	if err != nil {
+		zlog.Error().Err(err)
+		return err
+	}
+	defer newFile.Close()
+
+	bytesCopied, err := io.Copy(newFile, sourceFile)
+	if err != nil {
+		zlog.Error().Err(err)
+		return err
+	}
+	zlog.Info().Str("Copied %d bytes.", strconv.FormatInt(bytesCopied, 10))
+	return nil
 }
 
 func copySrcFileToDestFile(src, dest string) error {
@@ -64,9 +91,10 @@ func copySrcFileToDestFile(src, dest string) error {
 	defer sourceFile.Close()
 
 	// Create new file
-	newFile, err := os.Create("/var/www/html/test.txt")
+	newFile, err := os.Create(dest)
 	if err != nil {
 		zlog.Error().Err(err)
+		fmt.Println(err)
 		return err
 	}
 	defer newFile.Close()
