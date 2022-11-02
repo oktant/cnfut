@@ -58,7 +58,7 @@ func copySrcFileToDestFolder(src, dest string) error {
 
 		return err
 	}
-	defer sourceFile.Clo	se()
+	defer sourceFile.Close()
 
 	_, file := filepath.Split(src)
 	if dest[len(dest)-1:] != string(os.PathSeparator) {
@@ -89,8 +89,6 @@ func copySrcFileToDestFile(src, dest string) error {
 		return err
 	}
 	defer sourceFile.Close()
-
-	// Create new file
 	newFile, err := os.Create(dest)
 	if err != nil {
 		zlog.Error().Err(err)
