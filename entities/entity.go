@@ -9,6 +9,4 @@ type SourceDestination struct {
 	Region          string `json:"region"  validate:"omitempty"`
 }
 
-var SupportedSystems = []string{"azure", "local", "s3"}
-
 const DefaultAwsRegion = "eu-north-1"
