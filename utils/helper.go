@@ -1,7 +1,8 @@
 package utils
 
 import (
-	"fmt"
+	"errors"
+	zlog "github.com/rs/zerolog/log"
 	"os"
 )
 
@@ -17,28 +18,32 @@ func IsDirectory(path string) (bool, error) {
 func IsSourceAndDestinationFolders(src, dest string) (int, error) {
 	srcIsDir, err := IsDirectory(src)
 	if err != nil {
+		zlog.Error().Msg(err.Error())
 		return 0, err
 	}
 	destIsDir, err := IsDirectory(dest)
 	if err != nil {
+		zlog.Error().Msg(err.Error())
 		_, err := os.Create(dest)
 		if err != nil {
+			zlog.Error().Msg(err.Error())
 			return 0, err
 		}
 	}
 	if srcIsDir {
 		if destIsDir {
-			fmt.Println("Both src and dest are folders")
+			zlog.Info().Msg("Both src and dest are folders")
 			return 1, nil
 		} else {
-			return 2, nil
+			zlog.Error().Msg("Src is a folder and dest is a file")
+			return 0, errors.New("src is a folder and dest is a file")
 		}
 	} else {
 		if destIsDir {
-			fmt.Println("Src is a file and dest is a folder")
+			zlog.Info().Msg("Src is a file and dest is a folder")
 			return 3, nil
 		} else {
-			fmt.Println("Src is a file and dest is a file")
+			zlog.Info().Msg("Src is a file and dest is a file")
 			return 4, nil
 		}
 

@@ -30,21 +30,20 @@ func FromLocalToAzure(srcDest *entities.SourceDestination) error {
 func FromLocalToLocal(srcDest *entities.SourceDestination) error {
 	folderOrFile, err := utils.IsSourceAndDestinationFolders(srcDest.Source, srcDest.Destination)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	if folderOrFile == 1 || folderOrFile == 4 {
 		err := cp.Copy(srcDest.Source, srcDest.Destination)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, err)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 	} else if folderOrFile == 3 {
 		err := copySrcFileToDestFolder(srcDest.Source, srcDest.Destination)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, err)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
-	} else {
-		return echo.NewHTTPError(http.StatusBadRequest, "Destination is a file while source is a folder")
 	}
+	zlog.Info().Msg("Successfully copied objects")
 	return nil
 }
 
@@ -52,7 +51,6 @@ func copySrcFileToDestFolder(src, dest string) error {
 	sourceFile, err := os.Open(src)
 	if err != nil {
 		zlog.Error().Err(err)
-
 		return err
 	}
 	defer sourceFile.Close()
