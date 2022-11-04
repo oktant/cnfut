@@ -33,7 +33,7 @@ func FromLocalToLocal(srcDest *entities.SourceDestination) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 	if folderOrFile == 1 || folderOrFile == 4 {
-		err := copySrcFolderToDestFolder(srcDest.Source, srcDest.Destination)
+		err := cp.Copy(srcDest.Source, srcDest.Destination)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err)
 		}
@@ -46,11 +46,6 @@ func FromLocalToLocal(srcDest *entities.SourceDestination) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Destination is a file while source is a folder")
 	}
 	return nil
-}
-
-func copySrcFolderToDestFolder(src, dest string) error {
-	err := cp.Copy(src, dest)
-	return err
 }
 
 func copySrcFileToDestFolder(src, dest string) error {
