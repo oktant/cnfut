@@ -10,7 +10,7 @@ import (
 	"github.com/necais/cnfut/entities"
 	"github.com/necais/cnfut/utils"
 	cp "github.com/otiai10/copy"
-	zlog "github.com/rs/zerolog/log"
+	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
 	"os"
@@ -47,14 +47,14 @@ func FromLocalToLocal(srcDest *entities.SourceDestination) error {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 	}
-	zlog.Info().Msg("Successfully copied objects")
+	log.Info().Msg("Successfully copied objects")
 	return nil
 }
 
 func copySrcFileToDestFolder(src, dest string) error {
 	sourceFile, err := os.Open(src)
 	if err != nil {
-		zlog.Error().Err(err)
+		log.Error().Err(err)
 		return err
 	}
 	defer sourceFile.Close()
@@ -62,21 +62,24 @@ func copySrcFileToDestFolder(src, dest string) error {
 	_, file := filepath.Split(src)
 	newFile, err := os.Create(dest + file)
 	if err != nil {
-		zlog.Error().Err(err)
+		log.Error().Err(err)
 		return err
 	}
 	defer newFile.Close()
 
 	bytesCopied, err := io.Copy(newFile, sourceFile)
 	if err != nil {
-		zlog.Error().Err(err)
+		log.Error().Err(err)
 		return err
 	}
-	zlog.Info().Str("Copied %d bytes.", strconv.FormatInt(bytesCopied, 10))
+	log.Info().Str("Copied %d bytes.", strconv.FormatInt(bytesCopied, 10))
 	return nil
 }
 
 func FromLocalToGoogle(srcDest *entities.SourceDestination) error {
+	if len(strings.TrimSpace(srcDest.Bucket)) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "Bucket name can't be empty")
+	}
 	var destObject string
 	ctx := context.Background()
 	client, err := utils.GetInstance(ctx)
@@ -92,19 +95,19 @@ func FromLocalToGoogle(srcDest *entities.SourceDestination) error {
 	if isSourceDirectory {
 		err := filepath.Walk(srcDest.Source, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
-				zlog.Error().Msg(err.Error())
+				log.Error().Msg(err.Error())
 			}
 			if !info.IsDir() {
 				destObject := strings.Replace(path, srcDest.Source, srcDest.Destination, -1)
 				err := readSourceFileAndConvertToBuffer(path, ctx, srcDest.Bucket, destObject)
 				if err != nil {
-					return err
+					return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 				}
 			}
 			return nil
 		})
 		if err != nil {
-			return err
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 	} else {
 		destObject = srcDest.Destination + string(os.PathSeparator) + filepath.Base(srcDest.Source)
