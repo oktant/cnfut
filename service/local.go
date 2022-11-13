@@ -1,6 +1,9 @@
 package service
 
 import (
+	"bytes"
+	"context"
+	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/labstack/echo/v4"
@@ -13,6 +16,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"time"
 )
 
 func FromLocalToS3(srcDest *entities.SourceDestination) error {
@@ -76,7 +80,66 @@ func copySrcFileToDestFolder(src, dest string) error {
 	return nil
 }
 
-func FromLocalToGoogle(srcDest *entities.SourceDestination) {}
+func FromLocalToGoogle(srcDest *entities.SourceDestination) error {
+	var destObject string
+	ctx := context.Background()
+	client, err := utils.GetInstance(ctx)
+	if err != nil {
+		return fmt.Errorf("storage.NewClient: %v", err)
+	}
+	defer client.Close()
+	folderOrFile, err := utils.IsSourceAndDestinationFolders(srcDest.Source, srcDest.Destination)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if folderOrFile == 4 {
+		destObject = filepath.Dir(srcDest.Destination) + string(os.PathSeparator) + filepath.Base(srcDest.Source)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+	} else if folderOrFile == 1 {
+		err := copySrcFileToDestFolder(srcDest.Source, srcDest.Destination)
+		if err != nil {
+			///ToDo add folder support
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+	} else if folderOrFile == 3 {
+		if srcDest.Destination[len(srcDest.Destination)-1:] != string(os.PathSeparator) {
+			srcDest.Destination = srcDest.Destination + string(os.PathSeparator)
+		}
+		destObject = srcDest.Destination + filepath.Base(srcDest.Source)
+	}
+
+	fileContent, err := os.ReadFile(srcDest.Source)
+	if err != nil {
+		return fmt.Errorf("storage.NewClient: %v", err)
+	}
+	buf := bytes.NewBuffer(fileContent)
+	err = uploadFileToGoogle(ctx, buf, srcDest.Bucket, destObject)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return nil
+
+}
+
+func uploadFileToGoogle(ctx context.Context, buf *bytes.Buffer, bucket, object string) error {
+	client, err := utils.GetInstance(ctx)
+	ctx, cancel := context.WithTimeout(ctx, time.Second*50)
+	defer cancel()
+	wc := client.Bucket(bucket).Object(object).NewWriter(ctx)
+	wc.ChunkSize = 5
+
+	if _, err = io.Copy(wc, buf); err != nil {
+		return fmt.Errorf("io.Copy: %v", err)
+	}
+	if err := wc.Close(); err != nil {
+		return fmt.Errorf("Writer.Close: %v", err)
+	}
+	zlog.Info().Msg("Successfully copied objects")
+	return nil
+
+}
 
 func getAWSSession(region string) *session.Session {
 	awsConfig := &aws.Config{}

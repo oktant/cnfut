@@ -65,7 +65,7 @@ func copyObject(srcDest *entities.SourceDestination) error {
 			if err != nil {
 				return err
 			}
-		} else if srcDest.DestinationType == "google" {
+		} else if srcDest.DestinationType == "s3" {
 			err := service.FromLocalToS3(srcDest)
 			if err != nil {
 				return err
