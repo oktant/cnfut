@@ -10,4 +10,20 @@
 
 
 
-GOOGLE_CLOUD_STORAGE_JSON
+CNFUT (Cloud Native File/Folder Upload Tool)
+
+STILL IN DEVELOPMENT
+
+CNFUT is a cloud native solution for copying files and directories between public clouds and local system. 
+
+Supported systems are: S3, Google, Azure and Local
+    
+    S3 supported systems
+    Google cloud storage
+    Azure Blob Storage
+    Local file copies
+    
+
+Docker hub
+
+    [necais/cnfut](https://hub.docker.com/r/necais/cnfut)
