@@ -2,28 +2,64 @@ package service
 
 import (
 	"bytes"
-	"context"
-	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/labstack/echo/v4"
 	"github.com/necais/cnfut/entities"
 	"github.com/necais/cnfut/utils"
-	cp "github.com/otiai10/copy"
-	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
+
 	"strings"
 )
 
+import (
+	"context"
+	cp "github.com/otiai10/copy"
+	"github.com/rs/zerolog/log"
+)
+
 func FromLocalToS3(srcDest *entities.SourceDestination) error {
-	//s3Client, err := minio.New("s3.amazonaws.com", &minio.Options{
-	//	Creds:  credentials.NewStaticV4("YOUR-ACCESSKEYID", "YOUR-SECRETACCESSKEY", ""),
-	//	Secure: true,
-	//})
+	awsSession, err := utils.GetS3Client(srcDest)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	file, err := os.Open(srcDest.Source)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// get the file size and read
+	// the file content into a buffer
+	fileInfo, _ := file.Stat()
+	var size = fileInfo.Size()
+	buffer := make([]byte, size)
+	file.Read(buffer)
+
+	// config settings: this is where you choose the bucket,
+	// filename, content-type and storage class of the file
+	// you're uploading
+	e, s3err := s3.New(awsSession).PutObject(&s3.PutObjectInput{
+		Bucket:               aws.String(srcDest.Bucket),
+		Key:                  aws.String(srcDest.Source),
+		ACL:                  aws.String("private"),
+		Body:                 bytes.NewReader(buffer),
+		ContentLength:        aws.Int64(size),
+		ContentType:          aws.String(http.DetectContentType(buffer)),
+		ContentDisposition:   aws.String("attachment"),
+		ServerSideEncryption: aws.String("AES256"),
+	})
+
+	if s3err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	log.Info().Msg(e.String())
 	return nil
 }
 
@@ -82,9 +118,9 @@ func FromLocalToGoogle(srcDest *entities.SourceDestination) error {
 	}
 	var destObject string
 	ctx := context.Background()
-	client, err := utils.GetInstance(ctx)
+	client, err := utils.GetGoogleClient(ctx)
 	if err != nil {
-		return fmt.Errorf("storage.NewClient: %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	defer client.Close()
 	isSourceDirectory, err := utils.IsDirectory(srcDest.Source)

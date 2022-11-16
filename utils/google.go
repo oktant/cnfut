@@ -15,7 +15,7 @@ var once sync.Once
 
 var gClient *storage.Client
 
-func GetInstance(ctx context.Context) (*storage.Client, error) {
+func GetGoogleClient(ctx context.Context) (*storage.Client, error) {
 	var err error
 	if gClient == nil {
 		once.Do(
@@ -25,10 +25,11 @@ func GetInstance(ctx context.Context) (*storage.Client, error) {
 	}
 
 	return gClient, err
+
 }
 
 func UploadFileToGoogle(ctx context.Context, buf *bytes.Buffer, bucket, object string) error {
-	client, err := GetInstance(ctx)
+	client, err := GetGoogleClient(ctx)
 	ctx, cancel := context.WithTimeout(ctx, time.Second*50)
 	defer cancel()
 	wc := client.Bucket(bucket).Object(object).NewWriter(ctx)
