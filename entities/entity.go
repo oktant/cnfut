@@ -9,6 +9,9 @@ type SourceDestination struct {
 	Region               string `json:"region"  validate:"omitempty"`
 	Bucket               string `json:"bucket"  validate:"omitempty"`
 	GoogleCredentialPath string `json:"googleCredentialPath"  validate:"omitempty"`
+	S3AccessKeyId        string `json:"s3AccessKeyId'"  validate:"omitempty"`
+	S3SecretAccessKey    string `json:"s3SecretAccessKey'"  validate:"omitempty"`
+	Endpoint             string `json:"endpoint'"  validate:"omitempty"`
 }
 
 const DefaultAwsRegion = "eu-north-1"

@@ -3,7 +3,6 @@ package service
 import (
 	"bytes"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/labstack/echo/v4"
 	"github.com/necais/cnfut/entities"
@@ -26,7 +25,7 @@ import (
 func FromLocalToS3(srcDest *entities.SourceDestination) error {
 	awsSession, err := utils.GetS3Client(srcDest)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return err
 	}
 
 	file, err := os.Open(srcDest.Source)
@@ -35,16 +34,14 @@ func FromLocalToS3(srcDest *entities.SourceDestination) error {
 	}
 	defer file.Close()
 
-	// get the file size and read
-	// the file content into a buffer
 	fileInfo, _ := file.Stat()
 	var size = fileInfo.Size()
 	buffer := make([]byte, size)
-	file.Read(buffer)
+	_, err = file.Read(buffer)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 
-	// config settings: this is where you choose the bucket,
-	// filename, content-type and storage class of the file
-	// you're uploading
 	e, s3err := s3.New(awsSession).PutObject(&s3.PutObjectInput{
 		Bucket:               aws.String(srcDest.Bucket),
 		Key:                  aws.String(srcDest.Source),
@@ -57,7 +54,8 @@ func FromLocalToS3(srcDest *entities.SourceDestination) error {
 	})
 
 	if s3err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		log.Error().Msg(s3err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, s3err.Error())
 	}
 	log.Info().Msg(e.String())
 	return nil
@@ -183,23 +181,4 @@ func readSourceFileAndConvertToBuffer(source string, ctx context.Context, bucket
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return nil
-}
-
-func getAWSSession(region string) *session.Session {
-	awsConfig := &aws.Config{}
-	if len(region) > 0 {
-		awsConfig.Region = aws.String(region)
-	} else if len(os.Getenv("AWS_REGION")) > 0 {
-		awsConfig.Region = aws.String(region)
-	} else {
-		awsConfig.Region = aws.String(entities.DefaultAwsRegion)
-	}
-	sess, err := session.NewSession(
-		&aws.Config{
-			Region: aws.String(region)},
-	)
-	if err != nil {
-		panic(err)
-	}
-	return sess
 }
