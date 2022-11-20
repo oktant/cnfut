@@ -1,9 +1,11 @@
 package utils
 
 import (
+	"bytes"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/labstack/echo/v4"
 	"github.com/necais/cnfut/entities"
 	"github.com/rs/zerolog/log"
@@ -52,4 +54,38 @@ func retrieveRegion(region string) string {
 		return DefaultRegion
 	}
 
+}
+
+func UploadAFileToS3(source string, awsSession *session.Session, bucket, destObject string) error {
+	file, err := os.Open(source)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	fileInfo, _ := file.Stat()
+	var size = fileInfo.Size()
+	buffer := make([]byte, size)
+	_, err = file.Read(buffer)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	e, s3err := s3.New(awsSession).PutObject(&s3.PutObjectInput{
+		Bucket:               aws.String(bucket),
+		Key:                  aws.String(destObject),
+		ACL:                  aws.String("private"),
+		Body:                 bytes.NewReader(buffer),
+		ContentLength:        aws.Int64(size),
+		ContentType:          aws.String(http.DetectContentType(buffer)),
+		ContentDisposition:   aws.String("attachment"),
+		ServerSideEncryption: aws.String("AES256"),
+	})
+
+	if s3err != nil {
+		log.Error().Msg(s3err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, s3err.Error())
+	}
+	log.Info().Msg(e.String())
+	return nil
 }

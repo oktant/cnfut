@@ -2,8 +2,6 @@ package service
 
 import (
 	"bytes"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/labstack/echo/v4"
 	"github.com/necais/cnfut/entities"
 	"github.com/necais/cnfut/utils"
@@ -23,41 +21,45 @@ import (
 )
 
 func FromLocalToS3(srcDest *entities.SourceDestination) error {
+	var destObject string
+
+	isSourceDirectory, err := utils.IsDirectory(srcDest.Source)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 	awsSession, err := utils.GetS3Client(srcDest)
 	if err != nil {
 		return err
 	}
+	if isSourceDirectory {
+		err := filepath.Walk(srcDest.Source, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				log.Error().Msg(err.Error())
+			}
+			if !info.IsDir() {
+				destObject := strings.Replace(path, srcDest.Source, srcDest.Destination, -1)
+				err := utils.UploadAFileToS3(path, awsSession, srcDest.Bucket, destObject)
+				if err != nil {
+					return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+				}
+			}
+			return nil
+		})
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+	} else {
+		destObject = srcDest.Destination + string(os.PathSeparator) + filepath.Base(srcDest.Source)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+		err := utils.UploadAFileToS3(srcDest.Source, awsSession, srcDest.Bucket, destObject)
+		if err != nil {
+			return err
+		}
 
-	file, err := os.Open(srcDest.Source)
-	if err != nil {
-		return err
 	}
-	defer file.Close()
 
-	fileInfo, _ := file.Stat()
-	var size = fileInfo.Size()
-	buffer := make([]byte, size)
-	_, err = file.Read(buffer)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
-
-	e, s3err := s3.New(awsSession).PutObject(&s3.PutObjectInput{
-		Bucket:               aws.String(srcDest.Bucket),
-		Key:                  aws.String(srcDest.Source),
-		ACL:                  aws.String("private"),
-		Body:                 bytes.NewReader(buffer),
-		ContentLength:        aws.Int64(size),
-		ContentType:          aws.String(http.DetectContentType(buffer)),
-		ContentDisposition:   aws.String("attachment"),
-		ServerSideEncryption: aws.String("AES256"),
-	})
-
-	if s3err != nil {
-		log.Error().Msg(s3err.Error())
-		return echo.NewHTTPError(http.StatusBadRequest, s3err.Error())
-	}
-	log.Info().Msg(e.String())
 	return nil
 }
 
