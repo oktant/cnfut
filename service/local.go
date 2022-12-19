@@ -63,10 +63,6 @@ func FromLocalToS3(srcDest *entities.SourceDestination) error {
 	return nil
 }
 
-func FromLocalToAzure(srcDest *entities.SourceDestination) error {
-	return nil
-}
-
 func FromLocalToLocal(srcDest *entities.SourceDestination) error {
 	folderOrFile, err := utils.IsSourceAndDestinationFolders(srcDest)
 	if err != nil {
@@ -160,17 +156,6 @@ func FromLocalToGoogle(srcDest *entities.SourceDestination) error {
 	return nil
 
 }
-
-//func copyFolderToGoogleCloud(source, destination string) error {
-//	files, err := os.ReadDir(source)
-//	if err != nil {
-//		zlog.Error().Msg(err.Error())
-//		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-//	}
-//	for _, file := range files {
-//		fmt.Println(file.Name(), file.IsDir())
-//	}
-//}
 
 func readSourceFileAndConvertToBuffer(source string, ctx context.Context, bucket, destObject string) error {
 	fileContent, err := os.ReadFile(source)

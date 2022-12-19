@@ -33,12 +33,7 @@ func main() {
 func copyObject(srcDest *entities.SourceDestination) error {
 	switch srcDest.SourceType {
 	case "s3":
-		if srcDest.DestinationType == "azure" {
-			err := service.FromS3ToAzure(srcDest)
-			if err != nil {
-				return err
-			}
-		} else if srcDest.DestinationType == "local" {
+		if srcDest.DestinationType == "local" {
 			err := service.FromS3ToLocal(srcDest)
 			if err != nil {
 				return err
@@ -55,12 +50,7 @@ func copyObject(srcDest *entities.SourceDestination) error {
 			}
 		}
 	case "local":
-		if srcDest.DestinationType == "azure" {
-			err := service.FromLocalToAzure(srcDest)
-			if err != nil {
-				return err
-			}
-		} else if srcDest.DestinationType == "local" {
+		if srcDest.DestinationType == "local" {
 			err := service.FromLocalToLocal(srcDest)
 			if err != nil {
 				return err
@@ -72,29 +62,6 @@ func copyObject(srcDest *entities.SourceDestination) error {
 			}
 		} else {
 			service.FromLocalToGoogle(srcDest)
-		}
-	case "azure":
-		if srcDest.DestinationType == "azure" {
-			err := service.FromAzureToAzure(srcDest)
-			if err != nil {
-				return err
-			}
-
-		} else if srcDest.DestinationType == "local" {
-			err := service.FromAzureToLocal(srcDest)
-			if err != nil {
-				return err
-			}
-		} else if srcDest.DestinationType == "google" {
-			err := service.FromAzureToGoogle(srcDest)
-			if err != nil {
-				return err
-			}
-		} else {
-			err := service.FromAzureToS3(srcDest)
-			if err != nil {
-				return err
-			}
 		}
 	case "google":
 		if srcDest.DestinationType == "azure" {

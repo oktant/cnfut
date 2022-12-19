@@ -6,10 +6,6 @@ func FromS3ToLocal(srcDest *entities.SourceDestination) error {
 	return nil
 }
 
-func FromS3ToAzure(srcDest *entities.SourceDestination) error {
-	return nil
-}
-
 func FromS3ToS3(srcDest *entities.SourceDestination) error {
 	return nil
 }
