@@ -21,6 +21,9 @@ Supported systems are: S3, Google, Azure and Local
     Local file copies
     
 
-Docker hub
 
- [necais/cnfut](https://hub.docker.com/r/necais/cnfut)
+
+## Deploy to kubernetes
+
+ [necais/cnfut](https://hub.docker.com/r/necais/cnfut) could be used for deployment in kubernetes. Instructions for sample deployment can be found 
+ [here](https://docs.docker.com/get-started/kube-deploy/):
