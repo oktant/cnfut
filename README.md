@@ -22,5 +22,4 @@ Supported systems are: S3, Google, Azure and Local
     
 
 Docker hub
-
-    [necais/cnfut(https://hub.docker.com/r/necais/cnfut)]
+ [necais/cnfut](https://hub.docker.com/r/necais/cnfut)
