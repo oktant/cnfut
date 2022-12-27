@@ -9,7 +9,6 @@
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/necais/cnfut?style=plastic)
 
 
-## _STILL IN DEVELOPMENT_
 
 CNFUT is a cloud native solution for copying files and directories between public clouds and file systems. 
 
