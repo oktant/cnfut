@@ -9,6 +9,7 @@
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/necais/cnfut?style=plastic)
 
 
+qa34hj7wj9d4
 
 CNFUT is a cloud native solution for copying files and directories between public clouds and file systems. 
 
@@ -55,29 +56,26 @@ Supported systems are: S3, Google, Azure and Local
   | S3SecretAccessKey    | S3 secret key                                     | String  | None           | fdsgdfbcvbchghf                     | No         |
   | Endpoint             | URL to endpoint                                   | String  | None           | https://cnfut.blob.core.windows.net | No         |
 
-* **Success Response:**
-  
-  <_What should the status code be on success and is there any returned data? This is useful when people need to to know what their callbacks should expect!_>
 
-  * **Code:** 200 <br />
-    **Content:** `{ id : 12 }`
+* **Success Response:**
+
+  * **Code:** 202 Accepted <br />
+    **Content:** `{ status : Accepted }`
  
 * **Error Response:**
 
-  <_Most endpoints will have many ways they can fail. From unauthorized access, to wrongful parameters etc. All of those should be liste d here. It might seem repetitive, but it helps prevent assumptions from being made where they should be._>
-
-  * **Code:** 401 UNAUTHORIZED <br />
-    **Content:** `{ error : "Log in" }`
-
-  OR
-
-  * **Code:** 422 UNPROCESSABLE ENTRY <br />
-    **Content:** `{ error : "Email Invalid" }`
+  * **Code:** 400 Bad Request <br />
+    **Content:** `{ error : "Fields are not provided" }`
 
 * **Sample Call:**
 
-  <_Just a sample call to your endpoint in a runnable format ($.ajax call or a curl request) - this makes life easier and more predictable._> 
-
-* **Notes:**
-
-  <_This is where all uncertainties, commentary, discussion etc. can go. I recommend timestamping and identifying oneself when leaving comments here._> 
+  ``` 
+  {
+  "source": "/data/data/data3",
+  "destination": "data1",
+  "sourceType": "local",
+  "destinationType": "azure",
+  "bucket": "cnfut-container",
+  "endpoint": "https://cnfut.blob.core.windows.net"
+  } 
+  ```
