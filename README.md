@@ -29,33 +29,31 @@ Supported systems are: S3, Google, Azure and Local
 
 ## Usage
 ----
-  <_Additional information about your API call. Try to use verbs that match both request type (fetching vs modifying) and plurality (one vs multiple)._>
+  Copies file between two systems
 
 * **URL**
 
-  <_The URL Structure (path only, no root url)_>
+  /api/v1/
 
 * **Method:**
   
-  <_The request type_>
-
-  `GET` | `POST` | `DELETE` | `PUT`
-  
-*  **URL Params**
-
-   <_If URL params exist, specify them in accordance with name mentioned in URL section. Separate into optional and required. Document data constraints._> 
-
-   **Required:**
- 
-   `id=[integer]`
-
-   **Optional:**
- 
-   `photo_id=[alphanumeric]`
+   `POST`
 
 * **Data Params**
 
-  <_If making a post request, what should the body payload look like? URL Params rules apply here too._>
+  | Parameter            | Explanation                                       | Type    | Default values | Example                             | Mandatory  |
+   ----------------------|---------------------------------------------------|---------|----------------|-------------------------------------|------------|
+  | source               | Where is the source of data located(file, folder) | String  | None           | /data/data3                         | Yes        |
+  | destination          | Where to copy the data(file or folder)            | String  | None           | /data/                              | Yes        |
+  | sourceType           | Source type: s3, google, azure, local             | String  | None           | local                               | Yes        |
+  | destinationType      | Destination type: s3, google, azure, local        | String  | None           | s3                                  | Yes        |
+  | Concurrent           | Should copy executed concurrently                 | Boolean | None           | true                                | No         |
+  | Region               | Region of the resource(AWS Region)                | String  | us-east-1      | us-east-1                           | No         |
+  | Bucket               | Bucket name in the cloud                          | String  | None           | data                                | No         |
+  | GoogleCredentialPath | Credential file path for Google                   | String  | None           | /home/necais                        | No         |
+  | S3AccessKeyId        | S3 access key                                     | String  | None           | ieuwqhefbdsnbfs                     | No         |
+  | S3SecretAccessKey    | S3 secret key                                     | String  | None           | fdsgdfbcvbchghf                     | No         |
+  | Endpoint             | URL to endpoint                                   | String  | None           | https://cnfut.blob.core.windows.net | No         |
 
 * **Success Response:**
   
