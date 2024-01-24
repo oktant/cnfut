@@ -1,4 +1,4 @@
-FROM golang:alpine3.16
+FROM golang:1.20-alpine3.16
 
 RUN apk add --no-cache git
 WORKDIR /app/cnfut
